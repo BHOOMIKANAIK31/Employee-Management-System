@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Employee Management System</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .container {
+        width: 450px;
+        background: white;
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+        margin-bottom: 20px;
+        font-size: 22px;
+        color: #333;
+    }
+    .btn:hover{
+     background: blue;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        background: #007bff;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        margin: 10px;
+        font-size: 14px;
+        transition: 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        
+    }
+
+   
+
+    .message {
+        margin-top: 15px;
+        color: green;
+        font-weight: bold;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="container">
+    <h1>EMPLOYEE MANAGEMENT SYSTEM</h1>
+
+    <a href="/add" class="btn">Add Record</a>
+    <a href="/manage" class="btn">Manage Records</a>
+
+    <!-- <h3 class="message" th:text="${message}"></h3> -->
+    
+    <script th:if="${message}" >
+    alert("[[${message}]]");
+    </script>
+</div>
+
+</body>
+</html>

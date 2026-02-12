@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Add Employee</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f4f4f4;
+        font-family: Arial, sans-serif;
+    }
+
+    fieldset {
+        width: 450px;
+        height: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        justify-content: center;
+        align-items: center;
+        margin: 50px auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    h1 {
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 22px;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    td {
+        padding: 8px;
+        font-size: 15px;
+    }
+
+    input {
+        width: 95%;
+        padding: 7px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    button {
+        width: 120px;
+        padding: 10px;
+        background: #007bff;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+        font-size: 15px;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    button:hover {
+        background: #0056b3;
+    }
+</style>
+</head>
+
+<body>
+
+<form action="/update" method="POST">
+<input type="hidden" th:value=${emp.id} name="id">
+    <fieldset>
+        <h1>Add Record</h1>
+
+        <table>
+            <tr>
+                <td><label for="a">Name</label></td>
+                <td><input type="text" id="a" name="name" placeholder="Enter name" th:value="${emp.name}"></td>
+            </tr>
+
+            <tr>
+                <td><label for="b">Mobile</label></td>
+                <td><input type="number" id="b" name="mobile" placeholder="Enter mobile number" th:value="${emp.mobile}"></td>
+            </tr>
+
+            <tr>
+                <td><label for="c">Salary</label></td>
+                <td><input type="number" id="c" name="salary" placeholder="Enter salary" th:value="${emp.salary}"></td>
+            </tr>
+
+            <tr>
+                <td><label for="d">Department</label></td>
+                <td><input type="text" id="d" name="department" placeholder="Enter department name" th:value="${emp.department}"></td>
+            </tr>
+
+            <tr>
+                <td><label for="e">DOJ</label></td>
+                <td><input type="date" id="e" name="doj" th:value="${emp.doj}"></td>
+            </tr>
+        </table>
+
+        <a href="/manage"><button type="submit">update</button></a>
+    </fieldset>
+</form>
+
+</body>
+</html>
