@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -49,12 +50,24 @@ public String  manage(ModelMap map,RedirectAttributes attributes) {
 return "view";
 
 }
-@GetMapping	("/delete/{id}")
-public String  delete(@PathVariable  Integer id,RedirectAttributes attributes) {
-	repository.deleteById(id);
-	attributes.addFlashAttribute("message","record deleted succesfully");
-return "redirect:/manage";
+@DeleteMapping("/delete/{id}")
+public String delete(@PathVariable Integer id,
+                     RedirectAttributes attributes) {
 
+    if(repository.existsById(id)) {
+
+        repository.deleteById(id);
+
+        attributes.addFlashAttribute("message",
+                "record deleted successfully");
+
+    } else {
+
+        attributes.addFlashAttribute("message",
+                "record not found");
+    }
+
+    return "redirect:/manage";
 }
 
 @GetMapping	("/update/{id}")
