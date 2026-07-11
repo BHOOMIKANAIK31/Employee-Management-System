@@ -15,7 +15,7 @@ pipeline {
 
         stage('Run Spring Boot Application') {
             steps {
-                sh 'sudo java -jar target/employeemanagement-0.0.1-SNAPSHOT.jar'
+                sh 'sudo java -jar target/employeemanagement-0.0.1-SNAPSHOT.jar&'
             }
         }
     }
