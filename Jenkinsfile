@@ -1,32 +1,63 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['DEPLOY', 'REMOVE'],
+            description: 'Choose whether to deploy or remove containers'
+        )
+    }
+
     tools {
         maven 'maven'
     }
 
-    stages {
+    environment {
+        APP_NAME = "springboot-app"
+    }
 
-        stage('Build') {
+    stages {
+        stage('Build JAR') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
+                echo "Building Spring Boot JAR..."
                 sh 'mvn clean package'
             }
         }
 
-        stage('Run Spring Boot Application') {
+        stage('Deploy Application') {
+            when {
+                expression { params.ACTION == 'DEPLOY' }
+            }
             steps {
-                sh 'sudo java -jar target/employeemanagement-0.0.1-SNAPSHOT.jar&'
+                echo "Deploying Docker Containers..."
+                sh 'docker compose up --build -d'
+            }
+        }
+
+        stage('Remove Application') {
+            when {
+                expression { params.ACTION == 'REMOVE' }
+            }
+            steps {
+                echo "Stopping and Removing Containers..."
+                sh 'docker compose down'
+                sh 'docker image prune -af'
             }
         }
     }
-
     post {
         success {
-            echo 'Build and Deployment Successful'
+            echo "Pipeline executed successfully..."
         }
-
         failure {
-            echo 'Build or Deployment Failedd'
+            echo "Pipeline execution failed..."
+        }
+        always {
+            echo "Pipeline completed..."
         }
     }
 }
