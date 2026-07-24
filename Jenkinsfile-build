@@ -1,0 +1,111 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven'
+    }
+
+    environment {
+        IMAGE_NAME = "employeemanagement"
+        DOCKER_USER = "bhoomi002"
+        IMAGE_TAG = "v${BUILD_NUMBER}"
+    }
+
+    stages {
+
+        stage('Checkout Source') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Prepare Build') {
+            steps {
+                echo "Building Spring Boot project..."
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker image..."
+                sh "docker build -t ${IMAGE_NAME}:latest ."
+            }
+        }
+
+        stage('Docker Login') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-cred-id',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+
+                    sh '''
+                        echo "$PASS" | docker login -u "$USER" --password-stdin
+                    '''
+                }
+            }
+        }
+
+        stage('Tag Docker Image') {
+            steps {
+                echo "Tagging Docker image..."
+
+                sh """
+                    docker tag ${IMAGE_NAME}:latest ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                    docker tag ${IMAGE_NAME}:latest ${DOCKER_USER}/${IMAGE_NAME}:latest
+                """
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                echo "Pushing Docker image to Docker Hub..."
+
+                sh """
+                    docker push ${DOCKER_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                    docker push ${DOCKER_USER}/${IMAGE_NAME}:latest
+                """
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                echo "Cleaning Docker resources..."
+
+                sh '''
+                    docker image prune -af
+                    docker container prune -f
+                '''
+            }
+        }
+
+        stage('Docker Logout') {
+            steps {
+                sh 'docker logout'
+            }
+        }
+
+        stage('Done') {
+            steps {
+                echo "Pipeline completed successfully."
+            }
+        }
+    }
+
+    post {
+
+        success {
+            echo "Docker image built and pushed successfully."
+        }
+
+        failure {
+            echo "Pipeline execution failed."
+        }
+
+        always {
+            echo "Pipeline finished."
+        }
+    }
+}

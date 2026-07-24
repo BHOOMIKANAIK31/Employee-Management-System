@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: springboot-app
+  namespace: production
+  labels:
+    app: springboot-app
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: springboot-app
+
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+
+    spec:
+      containers:
+      - name: springboot-container
+        image: bhoomi002/employeemanagement:latest
+        imagePullPolicy: Always
+
+        ports:
+        - containerPort: 8080
