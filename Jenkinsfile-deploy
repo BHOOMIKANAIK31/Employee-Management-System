@@ -1,4 +1,5 @@
 pipeline {
+
     agent any
 
     parameters {
@@ -14,88 +15,104 @@ pipeline {
         )
     }
 
+
     stages {
 
-        stage('Execute') {
+        stage('Execute Kubernetes Operation') {
+
             steps {
+
                 script {
 
                     if (params.ACTION == 'Deploy Database') {
 
                         sh '''
                         echo "Creating Namespace..."
-                        kubectl apply -f k8s/namespace.yaml
+                        kubectl apply -f kubernetes/namespace.yml
 
-                        echo "Creating Persistent Volume..."
-                        kubectl apply -f k8s/pv.yaml
+                        echo "Creating MySQL Service..."
+                        kubectl apply -f kubernetes/mysql-service.yml
 
-                        echo "Creating Persistent Volume Claim..."
-                        kubectl apply -f k8s/pvc.yaml
-
-                        echo "Deploying MySQL Service..."
-                        kubectl apply -f k8s/mysql-service.yaml
-
-                        echo "Deploying MySQL StatefulSet..."
-                        kubectl apply -f k8s/mysql-statefulset.yaml
+                        echo "Creating MySQL StatefulSet..."
+                        kubectl apply -f kubernetes/mysql-statefulset.yml
                         '''
+
 
                     } else if (params.ACTION == 'Deploy Application') {
 
+
                         sh '''
                         echo "Creating Namespace..."
-                        kubectl apply -f k8s/namespace.yaml
+                        kubectl apply -f kubernetes/namespace.yml
 
                         echo "Deploying Spring Boot Application..."
-                        kubectl apply -f k8s/app-deployment.yaml
+                        kubectl apply -f kubernetes/app-deployment.yml
 
                         echo "Creating NodePort Service..."
-                        kubectl apply -f k8s/app-service.yaml
+                        kubectl apply -f kubernetes/app-service.yml
                         '''
+
 
                     } else if (params.ACTION == 'Remove Application') {
 
+
                         sh '''
-                        echo "Removing Spring Boot Application..."
-                        kubectl delete -f k8s/app-service.yaml --ignore-not-found=true
-                        kubectl delete -f k8s/app-deployment.yaml --ignore-not-found=true
+                        echo "Removing Spring Boot Service..."
+                        kubectl delete -f kubernetes/app-service.yml --ignore-not-found=true
+
+                        echo "Removing Spring Boot Deployment..."
+                        kubectl delete -f kubernetes/app-deployment.yml --ignore-not-found=true
                         '''
+
 
                     } else if (params.ACTION == 'Remove Database') {
 
+
                         sh '''
-                        echo "Removing MySQL..."
-                        kubectl delete -f k8s/mysql-statefulset.yaml --ignore-not-found=true
-                        kubectl delete -f k8s/mysql-service.yaml --ignore-not-found=true
-                        kubectl delete -f k8s/pvc.yaml --ignore-not-found=true
-                        kubectl delete -f k8s/pv.yaml --ignore-not-found=true
+                        echo "Removing MySQL StatefulSet..."
+                        kubectl delete -f kubernetes/mysql-statefulset.yml --ignore-not-found=true
+
+                        echo "Removing MySQL Service..."
+                        kubectl delete -f kubernetes/mysql-service.yml --ignore-not-found=true
                         '''
 
-                    } else {
-                        error "Invalid Action Selected"
-                    }
 
+                    } else {
+
+                        error "Invalid Action Selected"
+
+                    }
                 }
             }
         }
 
+
         stage('Verification') {
+
             steps {
+
                 sh '''
-                echo "===== Nodes ====="
+
+                echo "===== Kubernetes Nodes ====="
                 kubectl get nodes
+
 
                 echo "===== Namespaces ====="
                 kubectl get namespaces
 
-                echo "===== Pods ====="
+
+                echo "===== Pods in Production ====="
                 kubectl get pods -n production
 
-                echo "===== Services ====="
+
+                echo "===== Services in Production ====="
                 kubectl get svc -n production
+
                 '''
             }
         }
     }
+
 
     post {
 
@@ -103,9 +120,11 @@ pipeline {
             echo "Kubernetes operation completed successfully."
         }
 
+
         failure {
             echo "Kubernetes operation failed."
         }
+
 
         always {
             echo "Pipeline execution finished."
